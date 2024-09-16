@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "compile": "npx hardhat compile"
+        "compile": "npx hardhat compile",
+        "deploy": "npx hardhat deploy"
     },
     "author": "",
     "license": "ISC",

@@ -1,26 +1,67 @@
-const { network } = require("hardhat");
+const { network, ethers } = require("hardhat");
 const { developmentChains, networkConfig } = require("../helper.config");
+const { verifyLottery } = require("../utils/verify");
 
+const vrfFundAmount = ethers.parseEther("30");
 module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
     const chainId = network.config.chainId;
 
-    let vRFCoordinatorV2MockAddress;
+    let vRFCoordinatorV2Address;
+    let subscriptionId;
     if (developmentChains.includes(network.name)) {
-        const VRFCoordinatorV2Mock = await deployments.get(
+        const signer = await ethers.getSigner(deployer);
+        //deploy the mock contract
+        const vRFCoordinatorV2Mock = await deployments.get(
             "VRFCoordinatorV2Mock"
         );
-        vRFCoordinatorV2MockAddress = VRFCoordinatorV2Mock.address;
+        //address of mock contract
+        vRFCoordinatorV2Address = vRFCoordinatorV2Mock.address;
+        //associate contract information with signer
+        // interract with the mock contract
+        const mockContract = await ethers.getContractAt(
+            "VRFCoordinatorV2Mock",
+            vRFCoordinatorV2Address,
+            signer
+        );
+        // const transactionResponse =
+        //     await vRFCoordinatorV2Mock.createSubscription();
+        const transactionResponse = await mockContract.createSubscription();
+
+        const transactionReceipt = await transactionResponse.wait(1);
+        // console.log("logs", transactionReceipt.logs[0].args.subId);
+
+        subscriptionId = transactionReceipt.logs[0].args.subId;
+        await mockContract.fundSubscription(subscriptionId, vrfFundAmount);
     } else {
-        vRFCoordinatorV2MockAddress =
-            networkConfig[chainId].vrfCoordinatorAddress;
+        vRFCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorAddress;
+        subscriptionId = networkConfig[chainId].subscriptionId;
     }
-    await deploy("Lottery", {
+    const entranceFee = networkConfig[chainId].entranceFee;
+    const keyHash = networkConfig[chainId].keyHash;
+    const callbackGasLimit = networkConfig[chainId].callbackGasLimit;
+    const interval = networkConfig[chainId].interval;
+    const args = [
+        entranceFee,
+        vRFCoordinatorV2Address,
+        keyHash,
+        subscriptionId,
+        callbackGasLimit,
+        interval,
+    ];
+    const deployLottery = await deploy("Lottery", {
         from: deployer,
-        args: [],
+        args,
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1,
     });
+
+    if (
+        !developmentChains.includes(network.name) &&
+        process.env.ETHERSCAN_API_KEY
+    ) {
+        await verifyLottery(deployLottery.address, args);
+    }
 };
-module.exports.tags = ["Lottery"];
+module.exports.tags = ["all", "lottery"];
