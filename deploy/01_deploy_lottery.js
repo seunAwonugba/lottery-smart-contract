@@ -10,6 +10,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
     let vRFCoordinatorV2Address;
     let subscriptionId;
+    let mockContract;
     if (developmentChains.includes(network.name)) {
         const signer = await ethers.getSigner(deployer);
         //deploy the mock contract
@@ -18,9 +19,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         );
         //address of mock contract
         vRFCoordinatorV2Address = vRFCoordinatorV2Mock.address;
+
         //associate contract information with signer
         // interract with the mock contract
-        const mockContract = await ethers.getContractAt(
+        mockContract = await ethers.getContractAt(
             "VRFCoordinatorV2Mock",
             vRFCoordinatorV2Address,
             signer
@@ -56,6 +58,9 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1,
     });
+    const lotteryAddress = deployLottery.address;
+
+    await mockContract.addConsumer(subscriptionId, lotteryAddress);
 
     if (
         !developmentChains.includes(network.name) &&

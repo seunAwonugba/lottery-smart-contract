@@ -5,7 +5,9 @@
     "main": "index.js",
     "scripts": {
         "compile": "npx hardhat compile",
-        "deploy": "npx hardhat deploy"
+        "deploy": "npx hardhat deploy",
+        "test": "npx hardhat test",
+        "clean": "npx hardhat clean"
     },
     "author": "",
     "license": "ISC",

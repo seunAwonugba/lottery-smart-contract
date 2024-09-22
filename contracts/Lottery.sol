@@ -174,4 +174,8 @@ contract Lottery is VRFConsumerBaseV2, AutomationCompatibleInterface {
     function getNumberOfPlayers() public view returns (uint) {
         return players.length;
     }
+
+    function getInterval() public view returns (uint) {
+        return interval;
+    }
 }
