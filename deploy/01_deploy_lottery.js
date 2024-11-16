@@ -36,6 +36,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
         subscriptionId = transactionReceipt.logs[0].args.subId;
         await mockContract.fundSubscription(subscriptionId, vrfFundAmount);
+        // await mockContract.addConsumer(subscriptionId, lotteryAddress);
     } else {
         vRFCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorAddress;
         subscriptionId = networkConfig[chainId].subscriptionId;
@@ -60,7 +61,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     });
     const lotteryAddress = deployLottery.address;
 
-    await mockContract.addConsumer(subscriptionId, lotteryAddress);
+    // Add the lotteryAddress as a consumer after it's initialized
+    if (developmentChains.includes(network.name)) {
+        await mockContract.addConsumer(subscriptionId, lotteryAddress);
+    }
 
     if (
         !developmentChains.includes(network.name) &&

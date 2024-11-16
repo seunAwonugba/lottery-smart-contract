@@ -5,9 +5,13 @@
     "main": "index.js",
     "scripts": {
         "compile": "npx hardhat compile",
-        "deploy": "npx hardhat deploy",
-        "test": "npx hardhat test",
-        "clean": "npx hardhat clean"
+        "deploy:dev": "npx hardhat deploy",
+        "deploy": "npx hardhat deploy --network sepolia",
+        "test": "npx hardhat test --network sepolia",
+        "test:dev": "npx hardhat test",
+        "clean": "npx hardhat clean",
+        "node": "npx hardhat node"
+        
     },
     "author": "",
     "license": "ISC",

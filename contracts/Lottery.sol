@@ -22,7 +22,6 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/autom
  * @dev This contract imports some external contracts VRFConsumerBaseV2 and AutomationCompatibleInterface
  */
 contract Lottery is VRFConsumerBaseV2, AutomationCompatibleInterface {
-
     enum LotteryState {
         OPEN,
         CALCULATING
@@ -30,7 +29,7 @@ contract Lottery is VRFConsumerBaseV2, AutomationCompatibleInterface {
     // i want users coming on board to pay a base fee so they can participate in the game
     uint private immutable entranceFee;
     bytes32 private immutable keyHash;
-    uint64 private immutable s_subscriptionId;
+    uint256 private immutable s_subscriptionId;
     uint32 private immutable callbackGasLimit;
     uint private immutable interval;
 
@@ -56,7 +55,7 @@ contract Lottery is VRFConsumerBaseV2, AutomationCompatibleInterface {
         uint _entranceFee,
         address vRFConsumerBaseV2,
         bytes32 _keyHash,
-        uint64 _s_subscriptionId,
+        uint256 _s_subscriptionId,
         uint32 _callbackGasLimit,
         uint _interval
     ) VRFConsumerBaseV2(vRFConsumerBaseV2) {
@@ -93,7 +92,7 @@ contract Lottery is VRFConsumerBaseV2, AutomationCompatibleInterface {
         lotteryState = LotteryState.CALCULATING;
         uint randomNumberId = COORDINATOR.requestRandomWords(
             keyHash,
-            s_subscriptionId,
+            uint64(s_subscriptionId),
             requestConfirmations,
             callbackGasLimit,
             numWords
